@@ -64,16 +64,3 @@ jobs:
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
             --zip-file fileb://lambda_deploy.zip
-
-
-docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 \
-  /bin/bash -c "
-    pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t python &&
-    zip -r july_layer.zip python
-  "
-
-docker run --rm -v "$PWD":/var/task july-build \
-  /bin/bash -c "
-    pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t python &&
-    zip -r july_layer.zip python
-  "
