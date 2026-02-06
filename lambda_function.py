@@ -19,8 +19,8 @@ from heatmap import generate_heatmap
 print("Loading function")
 dynamodb = boto3.resource("dynamodb", region_name="ap-southeast-1")
 table = dynamodb.Table("poop-bot")
-
-## image - poop /heatmap (calmap, calplot for pandas/matplotlib)
+bucket_name = "s3-poop-bot"
+s3_client = boto3.client("s3")
 
 
 def status_code_200():
@@ -66,19 +66,8 @@ def lambda_handler(event, context):
         wrapped = get_wrapped(chat_id, user_id, username)
         return build_response(chat_id, wrapped)
     elif "/poopmap" in text:
-        filename = get_heatmap(chat_id)
-        photo = open(filename, "rb")
-        return build_photo_response(chat_id, photo, f"{username} Poop Map")
-        # body = {
-        #     "method": "sendPhoto",
-        #     "chat_id": chat_id,
-        #     "parse_mode": "HTML",
-        #     "caption": "Image here",
-        #     "photo": "https://github.com/test-images/png/blob/main/202105/cs-black-000.png?raw=true",
-        # }
-
-        # response = {"statusCode": 200, "body": json.dumps(body)}
-        # return response
+        presigned_url = get_heatmap_presigned_url(chat_i, user_id)
+        return build_photo_response(chat_id, presigned_url, f"{username} Poop Map")
     elif "/poop" in text:
         add_item(chat_id, user_id, username)
         return build_response(chat_id, f"OHYEA {username} has 💩!!!")
@@ -206,6 +195,15 @@ def get_wrapped(chat_id: str, user_id: str, username: str):
     return "No poops detected, poop first!"
 
 
-def get_heatmap(chat_id):
+def get_heatmap_presigned_url(chat_id: str, user_id: str) -> str:
     filename = generate_heatmap([])
-    return filename
+    return get_presigned_url(filename)
+
+
+def get_presigned_url(filename):
+    object_key = f"heatmaps/{filename.split('/')[-1]}"
+    s3_client.upload_file(filename, bucket_name, object_key)
+    url = s3_client.generate_presigned_url(
+        "get_object", Params={"Bucket": bucket_name, "Key": object_key}, ExpiresIn=3600
+    )
+    return url
