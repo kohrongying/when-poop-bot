@@ -66,7 +66,7 @@ def lambda_handler(event, context):
         wrapped = get_wrapped(chat_id, user_id, username)
         return build_response(chat_id, wrapped)
     elif "/poopmap" in text:
-        presigned_url = get_heatmap_presigned_url(chat_i, user_id)
+        presigned_url = get_heatmap_presigned_url(chat_id, user_id)
         return build_photo_response(chat_id, presigned_url, f"{username} Poop Map")
     elif "/poop" in text:
         add_item(chat_id, user_id, username)
@@ -180,14 +180,14 @@ def get_summary(chat_id: str):
     return "No poops detected, poop first!"
 
 
-def get_wrapped(chat_id: str, user_id: str, username: str):
-    def load_year_to_date_data(chat_id):
-        today = date.today()
-        start_of_year = date(today.year, 1, 1)
-        days_from_start = (today - start_of_year).days + 1  # +1 to include Jan 1
-        items = get_items_last_num_days(chat_id, num_days=days_from_start)
-        return items
+def load_year_to_date_data(chat_id):
+    today = date.today()
+    start_of_year = date(today.year, 1, 1)
+    days_from_start = (today - start_of_year).days + 1  # +1 to include Jan 1
+    items = get_items_last_num_days(chat_id, num_days=days_from_start)
+    return items
 
+def get_wrapped(chat_id: str, user_id: str, username: str):
     items = load_year_to_date_data(chat_id)
 
     if items:
@@ -196,8 +196,12 @@ def get_wrapped(chat_id: str, user_id: str, username: str):
 
 
 def get_heatmap_presigned_url(chat_id: str, user_id: str) -> str:
-    filename = generate_heatmap([])
-    return get_presigned_url(filename)
+    items = load_year_to_date_data(chat_id)
+    if items: 
+        filename = generate_heatmap(items, user_id)
+        return get_presigned_url(filename)
+    return "No poops detected, poop first!"
+    
 
 
 def get_presigned_url(filename):
