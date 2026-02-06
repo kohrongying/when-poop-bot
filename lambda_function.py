@@ -2,7 +2,7 @@ import random
 import boto3
 import json
 import base64
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 import uuid
 from boto3.dynamodb.conditions import Key, Attr
 
