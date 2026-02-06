@@ -19,10 +19,7 @@ print('Loading function')
 dynamodb = boto3.resource('dynamodb', region_name="ap-southeast-1")
 table = dynamodb.Table('poop-bot')
 
-## poop wrapped - average poop per month, fav day to poop
 ## image - poop /heatmap (calmap, calplot for pandas/matplotlib)
-
-FEATURE_FLAG = True  # Set to False to disable /results analytics
 
 
 def status_code_200():
@@ -60,14 +57,14 @@ def lambda_handler(event, context):
             return build_response(chat_id, f'{username} has not pooped! 😡')
         return build_response(chat_id, f'Erasing last 💩 for {username}')
     elif '/results' in text:
-        if FEATURE_FLAG and chat_id == '244394553':
-            wrapped = get_wrapped(chat_id, user_id)
-            return build_response(chat_id, wrapped)
         summary = get_summary(chat_id)
         return build_response(chat_id, summary)
     elif '/trivia' in text:
         trivia = random.choice(POOP_TRIVIA)
         return build_response(chat_id, f'{trivia}\n\nForward to a friend to remind them to 💩!')
+    elif '/wrapped' in text:
+        wrapped = get_wrapped(chat_id, user_id)
+        return build_response(chat_id, wrapped)
     return status_code_200()
 
 
