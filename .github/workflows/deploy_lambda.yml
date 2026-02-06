@@ -38,7 +38,7 @@ jobs:
       # Run tests before deployment
       - name: Run tests
         run: |
-          python -m pytest
+          python -m pytest test_*.py
 
       # 4. Copy project files into package folder
       - name: Copy project files
