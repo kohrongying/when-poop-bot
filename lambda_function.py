@@ -13,6 +13,7 @@ from results_helper import (
     format_longest_poop_streak,
     format_collective_most_poops,
 )
+from wrapped import format_yearly_summary
 
 print('Loading function')
 dynamodb = boto3.resource('dynamodb', region_name="ap-southeast-1")
@@ -21,6 +22,7 @@ table = dynamodb.Table('poop-bot')
 ## poop wrapped - average poop per month, fav day to poop
 ## image - poop /heatmap (calmap, calplot for pandas/matplotlib)
 
+FEATURE_FLAG = True  # Set to False to disable /results analytics
 
 
 def status_code_200():
@@ -58,6 +60,9 @@ def lambda_handler(event, context):
             return build_response(chat_id, f'{username} has not pooped! 😡')
         return build_response(chat_id, f'Erasing last 💩 for {username}')
     elif '/results' in text:
+        if FEATURE_FLAG and chat_id == '244394553':
+            wrapped = format_yearly_summary(chat_id, user_id)
+            return build_response(chat_id, wrapped)
         summary = get_summary(chat_id)
         return build_response(chat_id, summary)
     elif '/trivia' in text:
@@ -119,7 +124,7 @@ def delete_user_last_item(chat_id: str, user_id: str):
         return 1
     return 0
 
-def get_items_last_30_days(chat_id: str):
+def get_items_last_num_days(chat_id: str, num_days: int):
     items = []
     last_evaluated_key = None
     cutoff_timestamp = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
@@ -138,12 +143,10 @@ def get_items_last_30_days(chat_id: str):
         last_evaluated_key = response.get("LastEvaluatedKey")
         if not last_evaluated_key:
             break
-
-
     return items
 
 def get_summary(chat_id: str):
-    items = get_items_last_30_days(chat_id)
+    items = get_items_last_num_days(chat_id, num_days=30)
     summary = ''
     if items:
         # Builds Counter, grouped by username

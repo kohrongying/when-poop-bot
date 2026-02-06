@@ -18,7 +18,7 @@ def format_group_by_user_count(items):
 
 
 def get_biggest_poop_day(items, tz=default_tz):
-    items = map_to_timezone(items, tz)
+    items = map_items_to_timezone(items, tz)
     counts = {}
     for item in items:
         user_poop_list = counts.get(item['Username'], [])
@@ -56,7 +56,7 @@ def format_biggest_poop_day(items):
 
 
 def longest_poop_streak(items, tz=default_tz):
-    items = map_to_timezone(items, tz)
+    items = map_items_to_timezone(items, tz)
     counts = {}
     for item in items:
         user_poop_list = counts.get(item['Username'], [])
@@ -77,7 +77,7 @@ def format_longest_poop_streak(items):
 
 
 def collective_most_poops(items, tz=default_tz):
-    items = map_to_timezone(items, tz)
+    items = map_items_to_timezone(items, tz)
     counts = {}
     for item in items:
         date_list = counts.get(item['Date'], [])
@@ -103,11 +103,12 @@ def format_collective_most_poops(items):
     return result_msg
 
 
-def map_to_timezone(items, tz):
-    for item in items:
-        item['Date'] = datetime.fromisoformat(item['PoopTimestamp']).astimezone(tz).date()
-    return items
+def map_items_to_timezone(items, tz):
+    return [map_to_timezone(item, tz) for item in items]
 
+def map_to_timezone(item, tz):
+    item['Date'] = datetime.fromisoformat(item['PoopTimestamp']).astimezone(tz).date()
+    return item
 
 def longest_streak(dates):
     if not dates:

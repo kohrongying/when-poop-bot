@@ -1,0 +1,96 @@
+import pandas as pd
+from lambda_function import get_items_last_num_days
+from datetime import date
+from results_helper import default_tz, map_to_timezone
+
+def load_year_to_date_data(chat_id):
+    today = date.today()
+    start_of_year = date(today.year, 1, 1)
+    days_from_start = (today - start_of_year).days + 1  # +1 to include Jan 1
+    items = get_items_last_num_days(chat_id, num_days=days_from_start)
+    return items
+
+def load_person_data(chat_id, user_id) -> list:
+    all_data = load_year_to_date_data(chat_id)
+    items = []
+    for item in all_data:
+        if item['UserId'] != user_id:
+            continue
+        items.append(map_to_timezone(item, default_tz)['Date'])
+    return items
+
+def load_into_df(items: List[str]) -> pd.DataFrame:
+    df = pd.DataFrame(items, columns=["date"])
+    df['date'] = pd.to_datetime(df['date'])
+    return df
+
+def daily_frequency(df):
+    """Return frequency per day"""
+    return df.groupby(df['date'].dt.date).size()
+
+def monthly_frequency(df):
+    """Return frequency per month"""
+    return df.groupby(df['date'].dt.month).size()
+
+def yearly_summary(df):
+    """Return total movements and average per day"""
+    daily_counts = daily_frequency(df)
+    total = daily_counts.sum()
+    num_days_till_now = (date.today() - date(date.today().year, 1, 1)).days + 1
+    avg_per_day = daily_counts.mean()
+    max_per_day = daily_counts.max()
+    max_dates = daily_counts[daily_counts == max_per_day].index.tolist()
+    monthly_counts = monthly_frequency(df)
+    return {
+        "total_movements": total,
+        "average_per_day": total / num_days_till_now,
+        "max_per_day": max_per_day,
+        "list_days_with_max": max_dates,
+        "max_in_month": monthly_counts.max(),
+        "months_with_max": monthly_counts[monthly_counts == monthly_counts.max()].index.tolist(),
+        "min_in_month": monthly_counts.min(),
+        "months_with_min": monthly_counts[monthly_counts == monthly_counts.min()].index.tolist()
+    }
+    
+def format_yearly_summary(chat_id: str, user_id: str) -> str:
+    data = load_person_data(chat_id, user_id)
+    df = load_into_df(data)
+    summary = yearly_summary(df)
+    print(summary)
+    result_msg = f"📊 Yearly Poop Summary 📊\n\n"
+    result_msg += f"Total Movements: {summary['total_movements']}\n"
+    result_msg += f"Average per Day: {summary['average_per_day']:.2f}\n"
+    result_msg += f"Max Movements in a Day: {summary['max_per_day']} on {', '.join([d.strftime('%Y-%m-%d') for d in summary['list_days_with_max']])}\n"
+    result_msg += f"Max Movements in a Month: {summary['max_in_month']} in months {', '.join([str(m) for m in summary['months_with_max']])}\n"
+    result_msg += f"Min Movements in a Month: {summary['min_in_month']} in months {', '.join([str(m) for m in summary['months_with_min']])}\n"
+    return result_msg
+
+# def longest_streak(df):
+#     """Longest streak of consecutive days with movements"""
+#     days = pd.Series(df['date'].dt.date.unique()).sort_values()
+#     streaks = []
+#     current_streak = 1
+#     for i in range(1, len(days)):
+#         if (days.iloc[i] - days.iloc[i-1]).days == 1:
+#             current_streak += 1
+#         else:
+#             streaks.append(current_streak)
+#             current_streak = 1
+#     streaks.append(current_streak)
+#     return max(streaks)
+
+
+if __name__ == "__main__":
+    # Example usage
+    poop_dates = [
+        "2023-01-01",
+        "2023-01-02",
+        "2023-01-04",
+        "2023-01-04",
+        "2023-01-05",
+        "2023-02-10",
+        "2023-02-11",
+        "2023-02-12",
+    ]
+    df = load_into_df(poop_dates)
+    print(yearly_summary(df))
