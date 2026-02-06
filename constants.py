@@ -106,5 +106,5 @@ POOP_TRIVIA = [
     "Old fossilized poop can contain pollen that shows ancient climate conditions.",
     "Sea cucumbers expel parts of their internal organs with poop during stress.",
     "A sudden increase in poop frequency can be caused by high-fiber diets.",
-    "Dung beetles navigate using the Milky Way while rolling poop balls."
+    "Dung beetles navigate using the Milky Way while rolling poop balls.",
 ]
