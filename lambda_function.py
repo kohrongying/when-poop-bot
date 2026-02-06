@@ -63,7 +63,7 @@ def lambda_handler(event, context):
         trivia = random.choice(POOP_TRIVIA)
         return build_response(chat_id, f'{trivia}\n\nForward to a friend to remind them to 💩!')
     elif '/wrapped' in text:
-        wrapped = get_wrapped(chat_id, user_id)
+        wrapped = get_wrapped(chat_id, user_id, username)
         return build_response(chat_id, wrapped)
     return status_code_200()
 
@@ -159,7 +159,7 @@ def get_summary(chat_id: str):
         return summary
     return 'No poops detected, poop first!'
 
-def get_wrapped(chat_id: str, user_id: str):
+def get_wrapped(chat_id: str, user_id: str, username: str):
     def load_year_to_date_data(chat_id):
         today = date.today()
         start_of_year = date(today.year, 1, 1)
@@ -170,7 +170,7 @@ def get_wrapped(chat_id: str, user_id: str):
     items = load_year_to_date_data(chat_id)
     
     if items:
-        return format_yearly_summary(items, user_id)
+        return format_yearly_summary(items, user_id, username)
     return 'No poops detected, poop first!'
         
     

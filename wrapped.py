@@ -3,20 +3,22 @@ from datetime import date, datetime
 from results_helper import default_tz, map_to_timezone
 
 
-def format_yearly_summary(items, user_id: str) -> str:
+def format_yearly_summary(items, user_id: str, username: str) -> str:
     data = load_person_data(items, user_id)
     df = load_into_df(data)
     summary = yearly_summary(df)
     print(summary)
     result_msg = f"📊 Yearly Poop Summary 📊\n\n"
     
-    result_msg += f"You 💩 a total of {summary['total_movements']} since the start of this year! Wow...\n"
+    result_msg += f"{username} 💩 a total of *{summary['total_movements']}* times since the start of this year! Wow...\n\n"
     
-    result_msg += f"That is an average of {summary['average_per_day']:.2f} 💩 per day.\n"
+    result_msg += f"That is an average of *{summary['average_per_day']:.2f}* 💩 per day.\n\n"
     
-    result_msg += f"Your greatest achievement is pooping {summary['max_per_day']} times on {', '.join([d.strftime('%-d %b') for d in summary['list_days_with_max']])}.\n"
+    result_msg += f"Your greatest achievement is pooping *{summary['max_per_day']}* times on *{', '.join([d.strftime('%-d %b') for d in summary['list_days_with_max']])}*.\n\n"
     
-    result_msg += f"Busiest month was {', '.join([format_to_month(m) for m in summary['months_with_max']])} with {summary['max_in_month']} poops, calmest was {', '.join([format_to_month(m) for m in summary['months_with_min']])} with {summary['min_in_month']} poops\n"
+    result_msg += f"Busiest month was *{', '.join([format_to_month(m) for m in summary['months_with_max']])}* with {summary['max_in_month']} poops, calmest was *{', '.join([format_to_month(m) for m in summary['months_with_min']])}* with {summary['min_in_month']} poops\n\n"
+    
+    result_msg += f"Longest streak is *{summary['longest_streak']}* days!\n\n"
     
     result_msg += "Keep up the good work! 💩💪\n"
     
@@ -64,36 +66,21 @@ def yearly_summary(df):
         "max_in_month": monthly_counts.max(),
         "months_with_max": monthly_counts[monthly_counts == monthly_counts.max()].index.tolist(),
         "min_in_month": monthly_counts.min(),
-        "months_with_min": monthly_counts[monthly_counts == monthly_counts.min()].index.tolist()
+        "months_with_min": monthly_counts[monthly_counts == monthly_counts.min()].index.tolist(),
+        "longest_streak": longest_streak(df)
     }
     
 
-# def longest_streak(df):
-#     """Longest streak of consecutive days with movements"""
-#     days = pd.Series(df['date'].dt.date.unique()).sort_values()
-#     streaks = []
-#     current_streak = 1
-#     for i in range(1, len(days)):
-#         if (days.iloc[i] - days.iloc[i-1]).days == 1:
-#             current_streak += 1
-#         else:
-#             streaks.append(current_streak)
-#             current_streak = 1
-#     streaks.append(current_streak)
-#     return max(streaks)
-
-
-# if __name__ == "__main__":
-#     # Example usage
-#     poop_dates = [
-#         "2023-01-01",
-#         "2023-01-02",
-#         "2023-01-04",
-#         "2023-01-04",
-#         "2023-01-05",
-#         "2023-02-10",
-#         "2023-02-11",
-#         "2023-02-12",
-#     ]
-#     df = load_into_df(poop_dates)
-#     print(yearly_summary(df))
+def longest_streak(df):
+    """Longest streak of consecutive days with movements"""
+    days = pd.Series(df['date'].dt.date.unique()).sort_values()
+    streaks = []
+    current_streak = 1
+    for i in range(1, len(days)):
+        if (days.iloc[i] - days.iloc[i-1]).days == 1:
+            current_streak += 1
+        else:
+            streaks.append(current_streak)
+            current_streak = 1
+    streaks.append(current_streak)
+    return max(streaks)
