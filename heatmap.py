@@ -8,6 +8,7 @@ from wrapped import load_person_data
 def generate_heatmap(items: list, user_id: str) -> str:
     """Generate heatmap for given user data and return filename"""
     data = load_person_data(items, user_id)
+    data = [x.day for x in data]
 
     plt.figure(figsize=(10, 4))
     today = date.today()
