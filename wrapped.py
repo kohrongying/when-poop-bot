@@ -25,7 +25,7 @@ def load_person_data(items, user_id) -> list:
         ret.append(map_to_timezone(item, default_tz)['Date'])
     return ret
 
-def load_into_df(items: List[str]) -> pd.DataFrame:
+def load_into_df(items: list[str]) -> pd.DataFrame:
     df = pd.DataFrame(items, columns=["date"])
     df['date'] = pd.to_datetime(df['date'])
     return df
