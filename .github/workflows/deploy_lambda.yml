@@ -54,7 +54,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::163368111864:role/role-githubaction-assumerole
+          role-to-assume: arn:aws:iam::163368111864:role/role-githubdeploy-whenpoopbot
           aws-region: ap-southeast-1
 
       # 6. Deploy to AWS Lambda
