@@ -44,6 +44,7 @@ jobs:
       # 4. Copy project files into package folder
       - name: Copy project files
         run: |
+          mkdir -p package
           cp *.py package/
 
       # 5. Create deployment ZIP
