@@ -10,20 +10,20 @@ def format_yearly_summary(items, user_id: str, username: str) -> str:
     print(summary)
     result_msg = "📊 Yearly Poop Summary 📊\n\n"
 
-    result_msg += f"{username} 💩 a total of *{summary['total_movements']}* times since the start of this year! Wow...\n\n"
+    result_msg += f"{username} 💩 a total of <b>{summary['total_movements']}</b> times since the start of this year! Wow...\n\n"
 
     result_msg += (
-        f"That is an average of *{summary['average_per_day']:.2f}* 💩 per day.\n\n"
+        f"That is an average of <b>{summary['average_per_day']:.2f}</b> 💩 per day.\n\n"
     )
 
-    result_msg += f"Your greatest achievement is pooping *{summary['max_per_day']}* times on *{', '.join([d.strftime('%-d %b') for d in summary['list_days_with_max']])}*.\n\n"
+    result_msg += f"Your greatest achievement is pooping <b>{summary['max_per_day']}</b> times on <b>{', '.join([d.strftime('%-d %b') for d in summary['list_days_with_max']])}</b>.\n\n"
 
-    result_msg += f"Busiest month was *{', '.join([format_to_month(m) for m in summary['months_with_max']])}* with {summary['max_in_month']} poops, calmest was *{', '.join([format_to_month(m) for m in summary['months_with_min']])}* with {summary['min_in_month']} poops\n\n"
+    result_msg += f"Busiest month was <b>{', '.join([format_to_month(m) for m in summary['months_with_max']])}</b> with {summary['max_in_month']} poops, calmest was <b>{', '.join([format_to_month(m) for m in summary['months_with_min']])}</b> with {summary['min_in_month']} poops\n\n"
 
-    result_msg += f"Longest streak is *{summary['longest_streak']}* days!\n\n"
+    result_msg += f"Longest streak is <b>{summary['longest_streak']}</b> days!\n\n"
 
     result_msg += "Keep up the good work! 💩💪\n"
-
+    print(result_msg)
     return result_msg
 
 
