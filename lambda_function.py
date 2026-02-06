@@ -14,6 +14,7 @@ from results_helper import (
     format_collective_most_poops,
 )
 from wrapped import format_yearly_summary
+from heatmap import generate_heatmap
 
 print("Loading function")
 dynamodb = boto3.resource("dynamodb", region_name="ap-southeast-1")
@@ -64,9 +65,23 @@ def lambda_handler(event, context):
         return build_response(
             chat_id, f"{trivia}\n\nForward to a friend to remind them to 💩!"
         )
-    elif "/wrapped" in text:
+    elif "/poopwrapped" in text:
         wrapped = get_wrapped(chat_id, user_id, username)
         return build_response(chat_id, wrapped)
+    elif "/poopmap" in text:
+        filename = get_heatmap(chat_id)
+        photo = open(filename, "rb")
+        return build_photo_response(chat_id, photo, f"{username} Poop Map")
+        # body = {
+        #     "method": "sendPhoto",
+        #     "chat_id": chat_id,
+        #     "parse_mode": "HTML",
+        #     "caption": "Image here",
+        #     "photo": "https://github.com/test-images/png/blob/main/202105/cs-black-000.png?raw=true",
+        # }
+
+        # response = {"statusCode": 200, "body": json.dumps(body)}
+        # return response
     return status_code_200()
 
 
@@ -76,6 +91,19 @@ def build_response(chat_id, text):
         "chat_id": chat_id,
         "parse_mode": "HTML",
         "text": text,
+    }
+
+    response = {"statusCode": 200, "body": json.dumps(body)}
+    return response
+
+
+def build_photo_response(chat_id, photo, caption):
+    body = {
+        "method": "sendPhoto",
+        "chat_id": chat_id,
+        "parse_mode": "HTML",
+        "caption": caption,
+        "photo": photo,
     }
 
     response = {"statusCode": 200, "body": json.dumps(body)}
@@ -176,3 +204,8 @@ def get_wrapped(chat_id: str, user_id: str, username: str):
     if items:
         return format_yearly_summary(items, user_id, username)
     return "No poops detected, poop first!"
+
+
+def get_heatmap():
+    filename = generate_heatmap([])
+    return filename

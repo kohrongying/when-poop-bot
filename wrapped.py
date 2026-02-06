@@ -5,7 +5,6 @@ from results_helper import default_tz, map_to_timezone
 
 def format_yearly_summary(items, user_id: str, username: str) -> str:
     data = load_person_data(items, user_id)
-    # df = load_into_df(data)
     summary = yearly_summary(data)
     print(summary)
     result_msg = "📊 Yearly Poop Summary 📊\n\n"
@@ -39,12 +38,6 @@ def load_person_data(items, user_id) -> list[date]:
             continue
         ret.append(map_to_timezone(item, default_tz)["Date"])
     return ret
-
-
-# def load_into_df(items: list[str]) -> pd.DataFrame:
-#     df = pd.DataFrame(items, columns=["date"])
-#     df['date'] = pd.to_datetime(df['date'])
-#     return df
 
 
 def daily_frequency(df):
