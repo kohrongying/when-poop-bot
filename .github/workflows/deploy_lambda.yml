@@ -26,11 +26,11 @@ jobs:
           python-version: '3.11'
 
       # 3. Install dependencies into package folder
-      - name: Install dependencies for Lambda
-        run: |
-          python -m pip install --upgrade pip
-          mkdir -p package
-          pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t package
+      # - name: Install dependencies for Lambda
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     mkdir -p package
+      #     pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t package
 
       # Run tests before deployment
       - name: Run tests
@@ -64,3 +64,16 @@ jobs:
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
             --zip-file fileb://lambda_deploy.zip
+
+
+docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 \
+  /bin/bash -c "
+    pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t python &&
+    zip -r july_layer.zip python
+  "
+
+docker run --rm -v "$PWD":/var/task july-build \
+  /bin/bash -c "
+    pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t python &&
+    zip -r july_layer.zip python
+  "
