@@ -64,15 +64,15 @@ def lambda_handler(event, context):
         return build_response(chat_id, f'{trivia}\n\nForward to a friend to remind them to 💩!')
     elif '/wrapped' in text:
         wrapped = get_wrapped(chat_id, user_id, username)
-        return build_response(chat_id, wrapped)
+        return build_response(chat_id, wrapped, parse_mode='MarkdownV2')
     return status_code_200()
 
 
-def build_response(chat_id, text):
+def build_response(chat_id, text, parse_mode='HTML'):
     body = {
         'method': 'sendMessage',
         'chat_id': chat_id,
-        'parse_mode': 'HTML',
+        'parse_mode': parse_mode,
         'text': text,
     }
 
