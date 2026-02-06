@@ -16,11 +16,11 @@ jobs:
     steps:
       # 1. Checkout repo
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -35,7 +35,7 @@ jobs:
 
       # Run tests before deployment
       - name: Run tests
-        run: pytest
+        run: python -m pytest
 
       # 4. Copy project files into package folder
       - name: Copy project files
