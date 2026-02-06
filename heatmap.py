@@ -31,7 +31,7 @@ def generate_heatmap(dates):
     d = [datetime.fromisoformat(x).date().day for x in data]
     plt.figure(figsize=(10, 4))
     july.heatmap(dt_range, d, title="Poop Activity", cmap="github")
-    filename = f"heatmap_{datetime.now().timestamp()}.png"
+    filename = f"/tmp/heatmap_{datetime.now().timestamp()}.png"
     plt.savefig(filename, dpi=200)
     plt.close()
     return filename

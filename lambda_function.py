@@ -49,10 +49,7 @@ def lambda_handler(event, context):
     user_id = str(update["message"]["from"]["id"])
     username = update["message"]["from"]["username"]
     print(f"[{chat_id}] {username} ({user_id}) said: {text}")
-    if "/poop" in text:
-        add_item(chat_id, user_id, username)
-        return build_response(chat_id, f"OHYEA {username} has 💩!!!")
-    elif "/unpoop" in text:
+    if "/unpoop" in text:
         item = delete_user_last_item(chat_id, user_id)
         if item == 0:
             return build_response(chat_id, f"{username} has not pooped! 😡")
@@ -60,7 +57,7 @@ def lambda_handler(event, context):
     elif "/results" in text:
         summary = get_summary(chat_id)
         return build_response(chat_id, summary)
-    elif "/trivia" in text:
+    elif "/pooptrivia" in text:
         trivia = random.choice(POOP_TRIVIA)
         return build_response(
             chat_id, f"{trivia}\n\nForward to a friend to remind them to 💩!"
@@ -82,6 +79,9 @@ def lambda_handler(event, context):
 
         # response = {"statusCode": 200, "body": json.dumps(body)}
         # return response
+    elif "/poop" in text:
+        add_item(chat_id, user_id, username)
+        return build_response(chat_id, f"OHYEA {username} has 💩!!!")
     return status_code_200()
 
 
@@ -206,6 +206,6 @@ def get_wrapped(chat_id: str, user_id: str, username: str):
     return "No poops detected, poop first!"
 
 
-def get_heatmap():
+def get_heatmap(chat_id):
     filename = generate_heatmap([])
     return filename
