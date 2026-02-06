@@ -32,13 +32,12 @@ def format_to_month(month_num: int) -> str:
     return datetime(2023, month_num, 1).strftime("%B")
 
 
-def load_person_data(items, user_id) -> list:
+def load_person_data(items, user_id) -> list[date]:
     ret = []
     for item in items:
         if item["UserId"] != user_id:
             continue
-        date_str = map_to_timezone(item, default_tz)["Date"]
-        ret.append(datetime.strptime(date_str, "%Y-%m-%d").date())
+        ret.append(map_to_timezone(item, default_tz)["Date"])
     return ret
 
 
