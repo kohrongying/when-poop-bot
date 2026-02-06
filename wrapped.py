@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import date
+from datetime import date, datetime
 from results_helper import default_tz, map_to_timezone
 
 
@@ -9,13 +9,22 @@ def format_yearly_summary(items, user_id: str) -> str:
     summary = yearly_summary(df)
     print(summary)
     result_msg = f"📊 Yearly Poop Summary 📊\n\n"
-    result_msg += f"Total Bowel Movements: {summary['total_movements']}\n"
-    result_msg += f"Average per Day: {summary['average_per_day']:.2f}\n"
-    result_msg += f"Max Movements in a Day: {summary['max_per_day']} on {', '.join([d.strftime('%Y-%m-%d') for d in summary['list_days_with_max']])}\n"
-    result_msg += f"Max Movements in a Month: {summary['max_in_month']} in months {', '.join([str(m) for m in summary['months_with_max']])}\n"
-    result_msg += f"Min Movements in a Month: {summary['min_in_month']} in months {', '.join([str(m) for m in summary['months_with_min']])}\n"
+    
+    result_msg += f"You 💩 a total of {summary['total_movements']} since the start of this year! Wow...\n"
+    
+    result_msg += f"That is an average of {summary['average_per_day']:.2f} 💩 per day.\n"
+    
+    result_msg += f"Your greatest achievement is pooping {summary['max_per_day']} times on {', '.join([d.strftime('%-d %b') for d in summary['list_days_with_max']])}.\n"
+    
+    result_msg += f"Busiest month was {', '.join([format_to_month(m) for m in summary['months_with_max']])} with {summary['max_in_month']} poops, calmest was {', '.join([format_to_month(m) for m in summary['months_with_min']])} with {summary['min_in_month']} poops\n"
+    
+    result_msg += "Keep up the good work! 💩💪\n"
+    
     return result_msg
 
+def format_to_month(month_num: int) -> str:
+    """Returns month name given month number"""
+    return datetime(2023, month_num, 1).strftime("%B")
 
 def load_person_data(items, user_id) -> list:
     ret = []
