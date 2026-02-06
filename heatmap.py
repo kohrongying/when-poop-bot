@@ -8,11 +8,14 @@ from wrapped import load_person_data
 def generate_heatmap(items: list, user_id: str) -> str:
     """Generate heatmap for given user data and return filename"""
     data = load_person_data(items, user_id)
-    data = [x.day for x in data]
+    d = {}
+    for dt in data:
+        d[dt] = d.get(dt, 0) + 1
 
     plt.figure(figsize=(10, 4))
     today = date.today()
     dt_range = date_range(date(today.year, 1, 1), date(today.year, 12, 31))
+    data = [d.get(dt, 0) for dt in dt_range]
     july.heatmap(dt_range, data, title="Poop Activity", cmap="github")
 
     filename = f"/tmp/heatmap_{datetime.now().timestamp()}.png"
