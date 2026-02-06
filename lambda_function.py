@@ -61,7 +61,7 @@ def lambda_handler(event, context):
         return build_response(chat_id, f'Erasing last 💩 for {username}')
     elif '/results' in text:
         if FEATURE_FLAG and chat_id == '244394553':
-            wrapped = format_yearly_summary(chat_id, user_id)
+            wrapped = get_wrapped(chat_id, user_id)
             return build_response(chat_id, wrapped)
         summary = get_summary(chat_id)
         return build_response(chat_id, summary)
@@ -162,3 +162,18 @@ def get_summary(chat_id: str):
         return summary
     return 'No poops detected, poop first!'
 
+def get_wrapped(chat_id: str, user_id: str):
+    def load_year_to_date_data(chat_id):
+        today = date.today()
+        start_of_year = date(today.year, 1, 1)
+        days_from_start = (today - start_of_year).days + 1  # +1 to include Jan 1
+        items = get_items_last_num_days(chat_id, num_days=days_from_start)
+        return items
+    
+    items = load_year_to_date_data(chat_id)
+    
+    if items:
+        return format_yearly_summary(items, user_id)
+    return 'No poops detected, poop first!'
+        
+    

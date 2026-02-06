@@ -1,23 +1,29 @@
 import pandas as pd
-from lambda_function import get_items_last_num_days
 from datetime import date
 from results_helper import default_tz, map_to_timezone
 
-def load_year_to_date_data(chat_id):
-    today = date.today()
-    start_of_year = date(today.year, 1, 1)
-    days_from_start = (today - start_of_year).days + 1  # +1 to include Jan 1
-    items = get_items_last_num_days(chat_id, num_days=days_from_start)
-    return items
 
-def load_person_data(chat_id, user_id) -> list:
-    all_data = load_year_to_date_data(chat_id)
-    items = []
-    for item in all_data:
+def format_yearly_summary(items, user_id: str) -> str:
+    data = load_person_data(items, user_id)
+    df = load_into_df(data)
+    summary = yearly_summary(df)
+    print(summary)
+    result_msg = f"📊 Yearly Poop Summary 📊\n\n"
+    result_msg += f"Total Bowel Movements: {summary['total_movements']}\n"
+    result_msg += f"Average per Day: {summary['average_per_day']:.2f}\n"
+    result_msg += f"Max Movements in a Day: {summary['max_per_day']} on {', '.join([d.strftime('%Y-%m-%d') for d in summary['list_days_with_max']])}\n"
+    result_msg += f"Max Movements in a Month: {summary['max_in_month']} in months {', '.join([str(m) for m in summary['months_with_max']])}\n"
+    result_msg += f"Min Movements in a Month: {summary['min_in_month']} in months {', '.join([str(m) for m in summary['months_with_min']])}\n"
+    return result_msg
+
+
+def load_person_data(items, user_id) -> list:
+    ret = []
+    for item in items:
         if item['UserId'] != user_id:
             continue
-        items.append(map_to_timezone(item, default_tz)['Date'])
-    return items
+        ret.append(map_to_timezone(item, default_tz)['Date'])
+    return ret
 
 def load_into_df(items: List[str]) -> pd.DataFrame:
     df = pd.DataFrame(items, columns=["date"])
@@ -52,18 +58,6 @@ def yearly_summary(df):
         "months_with_min": monthly_counts[monthly_counts == monthly_counts.min()].index.tolist()
     }
     
-def format_yearly_summary(chat_id: str, user_id: str) -> str:
-    data = load_person_data(chat_id, user_id)
-    df = load_into_df(data)
-    summary = yearly_summary(df)
-    print(summary)
-    result_msg = f"📊 Yearly Poop Summary 📊\n\n"
-    result_msg += f"Total Movements: {summary['total_movements']}\n"
-    result_msg += f"Average per Day: {summary['average_per_day']:.2f}\n"
-    result_msg += f"Max Movements in a Day: {summary['max_per_day']} on {', '.join([d.strftime('%Y-%m-%d') for d in summary['list_days_with_max']])}\n"
-    result_msg += f"Max Movements in a Month: {summary['max_in_month']} in months {', '.join([str(m) for m in summary['months_with_max']])}\n"
-    result_msg += f"Min Movements in a Month: {summary['min_in_month']} in months {', '.join([str(m) for m in summary['months_with_min']])}\n"
-    return result_msg
 
 # def longest_streak(df):
 #     """Longest streak of consecutive days with movements"""
@@ -80,17 +74,17 @@ def format_yearly_summary(chat_id: str, user_id: str) -> str:
 #     return max(streaks)
 
 
-if __name__ == "__main__":
-    # Example usage
-    poop_dates = [
-        "2023-01-01",
-        "2023-01-02",
-        "2023-01-04",
-        "2023-01-04",
-        "2023-01-05",
-        "2023-02-10",
-        "2023-02-11",
-        "2023-02-12",
-    ]
-    df = load_into_df(poop_dates)
-    print(yearly_summary(df))
+# if __name__ == "__main__":
+#     # Example usage
+#     poop_dates = [
+#         "2023-01-01",
+#         "2023-01-02",
+#         "2023-01-04",
+#         "2023-01-04",
+#         "2023-01-05",
+#         "2023-02-10",
+#         "2023-02-11",
+#         "2023-02-12",
+#     ]
+#     df = load_into_df(poop_dates)
+#     print(yearly_summary(df))

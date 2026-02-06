@@ -54,13 +54,6 @@ jobs:
           zip -r ../lambda_deploy.zip .
           cd ..
 
-      # Create Lambda layer for Pandas & NumPy to reduce deployment package size
-      - name: Create Pandas Lambda Layer
-        run: |
-          mkdir -p python
-          pip install pandas numpy -t python/
-          zip -r pandas_layer.zip python
-
       # 6. Configure AWS credentials using OIDC
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -68,29 +61,9 @@ jobs:
           role-to-assume: arn:aws:iam::163368111864:role/role-githubdeploy-whenpoopbot
           aws-region: ap-southeast-1
 
-      # 7. Publish Lambda Layer
-      - name: Publish Lambda Layer
-        id: publish_layer
-        run: |
-          LAYER_ARN=$(aws lambda publish-layer-version \
-            --layer-name pandas-layer \
-            --description "Pandas + NumPy layer" \
-            --zip-file fileb://pandas_layer.zip \
-            --compatible-runtimes python3.11 \
-            --query 'LayerVersionArn' \
-            --output text)
-          echo "LAYER_ARN=$LAYER_ARN" >> $GITHUB_ENV
-          
-      # 8. Deploy to AWS Lambda
+      # 7. Deploy to AWS Lambda
       - name: Deploy to Lambda
         run : |
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
             --zip-file fileb://lambda_deploy.zip
-
-      # 9. Attach Pandas layer to Lambda
-      - name: Attach Pandas Layer
-        run: |
-          aws lambda update-function-configuration \
-            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --layers $LAYER_ARN
