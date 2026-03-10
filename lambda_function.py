@@ -141,7 +141,7 @@ def delete_user_last_item(chat_id: str, user_id: str):
 def get_items_last_num_days(chat_id: str, num_days: int):
     items = []
     last_evaluated_key = None
-    cutoff_timestamp = (datetime.now(timezone.utc) - timedelta(days=30)).strftime(
+    cutoff_timestamp = (datetime.now(timezone.utc) - timedelta(days=num_days)).strftime(
         "%Y-%m-%d"
     )
     while True:
