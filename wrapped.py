@@ -1,12 +1,15 @@
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from collections import Counter
-from results_helper import default_tz, map_to_timezone
+from results_helper import default_tz, map_to_timezone, longest_streak
+from typing import Any
 
 
 def format_yearly_summary(items, user_id: str, username: str) -> str:
     data = load_person_data(items, user_id)
+    today = date.today()
+    data = list(filter(lambda d: d.year == today.year, data))
     summary = yearly_summary(data)
-    print(summary)
+
     result_msg = "📊 Yearly Poop Summary 📊\n\n"
 
     result_msg += f"{username} 💩 a total of <b>{summary['total_movements']}</b> times since the start of this year! Wow...\n\n"
@@ -22,7 +25,7 @@ def format_yearly_summary(items, user_id: str, username: str) -> str:
     result_msg += f"Longest streak is <b>{summary['longest_streak']}</b> days!\n\n"
 
     result_msg += "Keep up the good work! 💩💪\n"
-    print(result_msg)
+
     return result_msg
 
 
@@ -40,30 +43,30 @@ def load_person_data(items, user_id) -> list[date]:
     return ret
 
 
-def daily_frequency(df):
-    """Return frequency per day"""
+def daily_frequency(df: list[date]) -> Counter:
     return Counter(df)
 
 
-def monthly_frequency(df):
-    """Return frequency per month"""
+def monthly_frequency(df: list[date]) -> Counter:
     months = [d.month for d in df]
     return Counter(months)
 
 
-def yearly_summary(df):
-    """Return total movements and average per day"""
+def yearly_summary(df: list[date]) -> dict[str, Any]:
     daily_counts = daily_frequency(df)
     total = sum(daily_counts.values())
+
     num_days_till_now = (date.today() - date(date.today().year, 1, 1)).days + 1
     avg_per_day = total / num_days_till_now if num_days_till_now > 0 else 0
     max_per_day = max(daily_counts.values())
     max_dates = [d for d, count in daily_counts.items() if count == max_per_day]
+
     monthly_counts = monthly_frequency(df)
     max_in_month = max(monthly_counts.values())
     months_with_max = [m for m, c in monthly_counts.items() if c == max_in_month]
     min_in_month = min(monthly_counts.values())
     months_with_min = [m for m, c in monthly_counts.items() if c == min_in_month]
+
     return {
         "total_movements": total,
         "average_per_day": avg_per_day,
@@ -75,22 +78,3 @@ def yearly_summary(df):
         "months_with_min": months_with_min,
         "longest_streak": longest_streak(df),
     }
-
-
-def longest_streak(df):
-    """Longest streak of consecutive days with movements"""
-    if len(df) == 0:
-        return 0
-
-    hashset = {}
-    for dt in df:
-        hashset[dt] = True
-
-    streak = 1
-    max_streak = 1
-    for key in hashset:
-        if (key - timedelta(days=1)) not in hashset:
-            while (key + timedelta(days=streak)) in hashset:
-                streak += 1
-            max_streak = max(max_streak, streak)
-    return max_streak
