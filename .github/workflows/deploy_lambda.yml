@@ -20,10 +20,10 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
         with:
-          python-version: '3.11'
+          enable-cache: true
 
       # 3. Install dependencies into package folder
       # - name: Install dependencies for Lambda
@@ -32,11 +32,11 @@ jobs:
       #     mkdir -p package
       #     pip install -U git+https://github.com/thoellrich/july.git@fix-mpl.cbook.MatplotlibDepreciationWarning -t package
 
-      # Run tests before deployment
+      - name: Install dependencies
+        run: uv sync --locked --all-extras
+
       - name: Run tests
-        run: |
-          python -m pip install pytest
-          python -m pytest tests/
+        run: uv run python -m pytest
 
       # 4. Copy project files into package folder
       - name: Copy project files
