@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-july = { git = "https://github.com/thoellrich/july.git", rev = "35833e4c3d84b07faedeb128d670520b2d779932" }
+july = { git = "https://github.com/kohrongying/july.git", rev = "46c69959d0660df71919c26342d68b00dea1956c" }
 
 [dependency-groups]
 dev = [

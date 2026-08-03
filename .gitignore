@@ -6,3 +6,5 @@ python/
 july_heatmap*
 *.zip
 dockerfile
+.vscode
+.DS_Store
